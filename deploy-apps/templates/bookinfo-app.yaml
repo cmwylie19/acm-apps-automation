@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bookinfo
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: bookinfo-app-latest
+  namespace: bookinfo
+spec:
+  type: GitHub
+  pathname: https://github.com/cmwylie19/bookinfo-acm.git
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: bookinfo-app
+  namespace: bookinfo
+spec:
+  componentKinds:
+  - group: apps.open-cluster-management.io
+    kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - bookinfo-app
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  name: bookinfo-app
+  namespace: bookinfo
+  labels:
+    app: bookinfo-app
+  annotations:
+    apps.open-cluster-management.io/github-path: resources/bookinfo
+    apps.open-cluster-management.io/git-branch: main
+spec:
+  channel: bookinfo/bookinfo-app-latest
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: dev-clusters-east
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: dev-clusters-east
+  namespace: bookinfo
+spec:
+  clusterConditions:
+    - type: ManagedClusterConditionAvailable
+      status: "True"
+  clusterSelector:
+    matchLabels:
+      env: dev
+      region: us-east-1
+

@@ -1,0 +1,57 @@
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: httpbin-app-latest
+  namespace: default
+spec:
+  type: GitHub
+  pathname: https://github.com/cmwylie19/bookinfo-acm.git
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: httpbin-app
+  namespace: default
+spec:
+  componentKinds:
+  - group: apps.open-cluster-management.io
+    kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - httpbin-app
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  name: httpbin-app
+  namespace: default
+  labels:
+    app: httpbin-app
+  annotations:
+    apps.open-cluster-management.io/github-path: resources/httpbin
+    apps.open-cluster-management.io/git-branch: main
+spec:
+  channel: default/httpbin-app-latest
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: dev-clusters-west
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: dev-clusters-west
+  namespace: default
+spec:
+  clusterConditions:
+    - type: ManagedClusterConditionAvailable
+      status: "True"
+  clusterSelector:
+    matchLabels:
+      env: dev
+      region: us-west-1
