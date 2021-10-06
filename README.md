@@ -75,13 +75,6 @@ NAMESPACE: default
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
-[cwylie-redhat.com@bastion charts]$ helm get all deploy-apps
-NAME: deploy-apps
-LAST DEPLOYED: Wed Oct  6 19:40:29 2021
-NAMESPACE: default
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
 USER-SUPPLIED VALUES:
 null
 
